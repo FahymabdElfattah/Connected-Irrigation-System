@@ -1,0 +1,12 @@
+\selectlanguage{english}
+\begin{abstract}
+
+	Smart Farming, also known as Agriculture 4.0, is a technology that aims to combine traditional agriculture with digital and technical solutions in order to improve productivity and efficiency. Our project is part of this framework and aims to create a connected data logger for use in smart farming applications. This will be achieved using an embedded system to collect data on soil moisture, temperature, relative humidity, light, and water level in a reservoir, which will then be displayed on a smartphone. Additionally, the system will control a water pump to irrigate the soil.
+	
+	Our proposed system consists of several sensors, two embedded boards (NodeMCU and Arduino), a water pump, and an Android application. Arduino is responsible for acquiring data from the sensors that measure temperature, relative humidity, soil moisture, light, and water level in a reservoir, and then sending it to the NodeMCU board using I2C communication.
+	
+	The NodeMCU board then transmits this data to a Firebase database, and also acquires the state of the pump and controls it accordingly. The mission of the Android application, built using Flutter, is to display the data stored in the database and also control the pump.
+
+\end{abstract}
+
+

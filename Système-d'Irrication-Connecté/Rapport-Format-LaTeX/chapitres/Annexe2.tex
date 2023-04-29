@@ -1,0 +1,110 @@
+\section*{\textcolor{cyan}{Programme ESP8266}}
+
+\begin{flushleft}
+	\begin{lstlisting}[style=CStyle]
+		//_________________________________IMPORT LIBRARY____________________________________________
+		#include<Arduino.h>
+		#include <FirebaseESP8266.h>
+		#include <ESP8266WiFi.h>
+		#include <Wire.h>
+		//__________________________GPIOs PINs ARCHITECTURE _______________________________________
+		/* A0 ==> ANALOG INPUT
+		16 ==> TEST OF CONNECTION TO WIFI
+		5 ==> CHIP SELECT TO READ ------------ 
+		4 ==> CHIP SELECT TO READ SIOL HUMIDITY
+		0 ==> INPUT OF DHT21 SENSOR
+		2 ==> CONTROLE OF POMPE OF IRRIGATION
+		*/
+		//_________________________________DECLARATION OF VARIABLES__________________________________
+		FirebaseData firebaseData ;
+		int airTemperature, airHumidity, solHumidity,waterLevel,light ;
+		unsigned char stat = 0,pompeState = 0;
+		String sr="" ;
+		
+		
+		//________________________________NETWORK CREDENTIALS_______________________________________
+		const char* ssid = "HTL-WS";
+		const char* password = "12345678";
+		#define FIREBASE_HOST "https://irrigation-system-b4a7e-default-rtdb.firebaseio.com/" 
+		#define FIREBASE_AUTH "JenK4kn8SJMFPBYFvfP1KAU55KuG1x1VZOmJTqPd"
+		
+		//_--_--_--_--_--_--_--_--_-- setup -_--_--_--_--_--_--_--_--_--_--_--_--_--_--
+		void setup() {
+			//_____________________________SERIAL PORT FOR DEBUGGING PURPOSES_____________________________
+			Serial.begin(115200);
+			//_____JOIN I2C BUS WITH SDA=D1 AND SCL=D2_______________________
+			Wire.begin(D1, D2); 
+			//_____________________________CONFIGURATION OF GPIOs PINs _______________________________________
+			
+			pinMode(16,OUTPUT);  //D0
+			pinMode(13,OUTPUT); //D7
+			
+			//___________________________CONNECT TO Wi-Fi_______________________________________________
+			WiFi.begin(ssid, password);
+			Serial.println("Connecting to WiFi.");
+			while (WiFi.status() != WL_CONNECTED) {
+				Serial.print("-_-");
+			}
+			//_________________________ PRINTESP LOCAL IP ADDRESS _____________________________________
+			Serial.print("The IP  device : ");
+			Serial.println(WiFi.localIP());
+			//__________________________START THE Firebase_______________________________________________
+			Firebase.begin(FIREBASE_HOST,FIREBASE_AUTH);
+		}
+		
+		//_--_--_--_--_--_--_--_--_-- loop -_--_--_--_--_--_--_--_--_--_--_--_--_--_--_
+		
+		void loop() {
+			Serial.println("Connecting to WiFi.");
+			while (WiFi.status() != WL_CONNECTED) {
+				Serial.print("-_-");
+			}
+			delay(1000);
+			sendToArduino();
+			recievFromArduino();
+			sendToFirebase();
+			recievFromFirebase();
+		}
+		
+		//_____SEND DATA TO DEVICE ADDRESS 8___________________________
+		void sendToArduino(){
+			Wire.beginTransmission(8); 
+			Wire.write(pompeState);  
+			Wire.endTransmission(); 
+		}
+		
+		//_____RECEIVE DATA FROM DEVICE ADDRESS 8___________________________
+		void recievFromArduino(){
+			Wire.requestFrom(8, 26); 
+			while(Wire.available()){
+				char c = Wire.read();
+				sr +=c;
+			}
+			
+			airTemperature = (sr.substring(sr.indexOf("a")+1,sr.indexOf("b"))).toInt();
+			stat = (sr.substring(sr.indexOf("b")+1,sr.indexOf("c"))).toInt();
+			airHumidity = (sr.substring(sr.indexOf("c")+1,sr.indexOf("d"))).toInt();
+			solHumidity = (sr.substring(sr.indexOf("d")+1,sr.indexOf("e"))).toInt();
+			light =(sr.substring(sr.indexOf("e")+1,sr.indexOf("f"))).toInt();
+			waterLevel =(sr.substring(sr.indexOf("f")+1,sr.indexOf("z"))).toInt();
+		}
+		
+		//_______________________SEND DATA TO FIREBASE ____________________
+		void sendToFirebase(){
+			Firebase.setString(firebaseData,"irrigationSystem/fahymine/Air-Temperature" ,(String)airTemperature);
+			Firebase.setString(firebaseData,"irrigationSystem/fahymine/Air-Humidity" ,(String)airHumidity);
+			Firebase.setString(firebaseData,"irrigationSystem/fahymine/Sol-Humidity" ,(String)solHumidity);
+			Firebase.setString(firebaseData,"irrigationSystem/fahymine/Pompe-State" ,(String)stat);
+			Firebase.setString(firebaseData,"irrigationSystem/fahymine/Light-LDR" ,(String)light);
+			Firebase.setString(firebaseData,"irrigationSystem/fahymine/Water-Level" ,(String)waterLevel);
+		}
+		
+		
+		//_______________________RECIEVE DATA FROM FIREBASE _
+		void recievFromFirebase(){
+			if (Firebase.getString(firebaseData, "irrigationSystem/fahymine/Pompe-State")){
+				pompeState = (firebaseData.stringData()).toInt();
+			}
+		}
+	\end{lstlisting}
+\end{flushleft}

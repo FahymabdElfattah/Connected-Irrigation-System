@@ -1,0 +1,19 @@
+\selectlanguage{french}
+\begin{abstract}
+	
+L'Agriculture intelligente ou  (Smart Farming) s'agit d’une technologie de  gestion d’exploitation intelligente . Son objectif est de combiner l’agriculture classique et les 
+solutions numériques et techniques. Cette combinaison doit améliorer la productivité et permettre de gagner en efficacité.
+	
+C’est dans ce cadre que notre projet s’inscrit. L’objectif est de réaliser un datalogger connecté pour une application en agriculture intelligente. En utilisant un système embarqué qui permet de faire l’acquisition des informations sur l’humiditeé de sol,température, humidité relative, lumière et le niveau d’eau d’un réservoir. Ainsi, les afficher sur 
+un smartphone. De plus la commande d’une pompe d’eau pour arroser le sol.
+Le système de nous avons proposé est composé de plusieurs capteur, de deux cartes embarqués (NodeMCU et Arduino ), une pompe et une application Android. Arduino s’occupe 
+d’acquisition des données des capteurs qui mesure la température, humidité relative, humidité de sol, lumiére et le niveau d’eau d’un réservoir puis les envoyés à la carte NodeMCU en utilisant la communication I2c.
+	
+La carte NodeMCU s’en charge de transmettre ces données à une base de données Firebase , et aussi l’acquisition de l’état de la pompe et la commander selon l’état reçus.
+La mission de l’application Android réaliser par flutter est l’affichage des données stocker dans la base de 
+données. Ainsi que la commande de la pompe.
+	
+	
+\end{abstract}
+
+
